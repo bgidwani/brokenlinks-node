@@ -1,0 +1,12 @@
+{
+  "name": "brokenlinks",
+  "version": "1.0.0",
+  "description": "Identify broken links in website",
+  "main": "index.js",
+  "author": "Bharat Gidwani",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^3.0.1",
+    "url-parse": "^1.4.7"
+  }
+}
