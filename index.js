@@ -1,11 +1,11 @@
 const puppeteer = require('puppeteer');
 const parse = require('url-parse');
 
-const mainSiteUrl = 'https://www.dgdean.com/test.html';
+const mainSiteUrl = '<WEB_SITE_TO_CRAWL>';
 const MAX_URLS_TO_CRAWL = 5;
 let mainSiteDomain = '';
-let pagesCrawled = 0;
-const crawledUrls = [];        // list of pages crawled
+let pagesCrawled = 0;     // counter to keep track of pages that have been crawled by the process
+const crawledUrls = [];   // list of pages crawled
 
 const run = async () => {
     // identify the domain of the main site
@@ -30,6 +30,7 @@ const startCrawler = async (url) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    /* use Array based stack to keep track of urls being crawled */
     const urlStack = [];
     urlStack.push({
         url: url,
@@ -37,6 +38,7 @@ const startCrawler = async (url) => {
     });
 
     while ((pagesCrawled < MAX_URLS_TO_CRAWL) && (urlStack.length > 0)) {
+        // pop the first item from the stack
         let item = urlStack.shift();
 
         // skip if the url has already been crawled
