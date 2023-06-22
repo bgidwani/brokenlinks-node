@@ -6,7 +6,7 @@
   "author": "Bharat Gidwani",
   "license": "MIT",
   "dependencies": {
-    "puppeteer": "^3.0.1",
-    "url-parse": "^1.5.9"
+    "puppeteer": "^20.7.3",
+    "url-parse": "^1.5.10"
   }
 }

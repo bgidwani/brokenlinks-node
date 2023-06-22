@@ -1,11 +1,13 @@
 const puppeteer = require('puppeteer');
 const parse = require('url-parse');
+const https = require('https');
 
-const mainSiteUrl = '<WEB_SITE_TO_CRAWL>';
-const MAX_URLS_TO_CRAWL = 5;
+const mainSiteUrl = '<WEB_SITE_TO_CRAWL>'';
+const MAX_URLS_TO_CRAWL = 10
 let mainSiteDomain = '';
 let pagesCrawled = 0;     // counter to keep track of pages that have been crawled by the process
 const crawledUrls = [];   // list of pages crawled
+const brokenUrls = [];    // list of broken links
 
 const run = async () => {
     // identify the domain of the main site
@@ -20,14 +22,46 @@ const run = async () => {
         console.log(error);
     }
 
-    console.log('Crawling complete');
+    console.log('Crawling complete, list of Broken links:');
 
-    console.log(crawledUrls);
+    //console.log(crawledUrls);
+    console.log(brokenUrls);
 };
+
+const delay = (time) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, time);
+    })
+}
+
+const http_async = (url) => {
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            res.on('data', (chunk) => {
+                // console.log('Inside data');
+            });
+            res.on('end', () => {
+                //console.log('Inside end');
+                if (res.statusCode >= 200 && res.statusCode <= 299) {
+                    resolve({ statusCode: res.statusCode });
+                } else {
+                    reject({ statusCode: res.statusCode });
+                }
+            });
+            res.on('error', () => {
+                //console.log('Inside error 1');
+                reject(err);
+            });
+        }).on('error', (err) => {
+            console.log('Inside error 2');
+            reject(err);
+        });
+    });
+}
 
 const startCrawler = async (url) => {
     /* Initiate the Puppeteer browser */
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: 'new' });
     const page = await browser.newPage();
 
     /* use Array based stack to keep track of urls being crawled */
@@ -48,15 +82,24 @@ const startCrawler = async (url) => {
 
         console.log('Trying to crawl', item.url);
         // wait for little while, before making the request
-        await page.waitFor(700);
+        await delay(1000);
+        let urlStatus = -999;
 
-        let response = await page.goto(item.url);
-        let urlStatus = -99;
-        if (response) {
-            urlStatus = response.status();
+        if (item.url.endsWith('.pdf')) {
+            // puppeteer cannot load PDF documents
+            let response = await http_async(item.url);
+            if (response) {
+                urlStatus = response.statusCode;
+            }
+        } else {
+            let response = await page.goto(item.url);
+            if (response) {
+                urlStatus = response.status();
+            }
+            // wait for the page to load
+            await delay(1000);
         }
-        // wait for the page to load
-        await page.waitFor(700);
+
         pagesCrawled += 1;
 
         crawledUrls.push({
@@ -64,6 +107,14 @@ const startCrawler = async (url) => {
             url: item.url,
             status: urlStatus
         });
+
+        if (urlStatus !== 200) {
+            brokenUrls.push({
+                parent: item.parent,
+                url: item.url,
+                status: urlStatus
+            });
+        }
 
         // don't get links from the url, if it is not
         // part of the same domain
