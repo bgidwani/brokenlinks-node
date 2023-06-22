@@ -9,6 +9,7 @@ Pupperteer was used since it uses headlesss browser to navigate to a URL and wil
 1. Download the code
 1. Update `mainSiteUrl` in `index.js` to point to the URL that needs to be crawled
 1. Update `MAX_URLS_TO_CRAWL` in `index.js`to a suitable value, so the crawler does not run for ever
+1. Run `yarn` from terminal to install dependencies
 1. Run `node index.js` from terminal
 
 Once the process completes, the list of various urls is printed in console along with response status and the parent page that contains the link.
