@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const parse = require('url-parse');
 const https = require('https');
 
-const mainSiteUrl = '<WEB_SITE_TO_CRAWL>'';
+const mainSiteUrl = '<WEB_SITE_TO_CRAWL>';
 const MAX_URLS_TO_CRAWL = 10
 let mainSiteDomain = '';
 let pagesCrawled = 0;     // counter to keep track of pages that have been crawled by the process
